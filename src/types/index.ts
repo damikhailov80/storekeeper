@@ -1,29 +1,88 @@
-// Base types for the Storekeeper application
-export interface Product {
-    id: string;
-    barcode: string;
-    name: string;
-    description: string | null;
-    price: number;
-    quantity: number;
-    category: string | null;
-    supplier: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-}
+/**
+ * Central export file for all TypeScript types and interfaces
+ */
 
-export interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    error?: string;
-}
+// Product types
+export type {
+  Product,
+  ProductData,
+  CreateProductInput,
+  UpdateProductInput,
+  ProductSearchFilters,
+} from './product';
 
-export interface ErrorResponse {
-    success: false;
-    error: {
-        code: string;
-        message: string;
-        details?: Record<string, unknown>;
-    };
-    timestamp: string;
-}
+// API types
+export type {
+  BaseApiResponse,
+  SuccessApiResponse,
+  ErrorApiResponse,
+  ApiResponse,
+  ProductSearchResponse,
+  HealthCheckResponse,
+} from './api';
+
+export {
+  ApiErrorCode,
+  HttpStatusCode,
+} from './api';
+
+// Error types
+export type {
+  ErrorContext,
+  ErrorHandler,
+  ErrorRecoveryAction,
+  ValidationErrorDetail,
+} from './errors';
+
+export {
+  ErrorType,
+  ErrorSeverity,
+  ErrorRecoveryStrategy,
+  AppError,
+  ScannerError,
+  ApiError,
+  ValidationError,
+  ERROR_MESSAGES,
+} from './errors';
+
+// Validation types
+export type {
+  BarcodeFormat,
+  FieldValidationResult,
+  FormValidationResult,
+  ValidationContext,
+  ValidatorFunction,
+  ValidationRule,
+  ValidationSchema,
+} from './validation';
+
+export {
+  BARCODE_PATTERNS,
+  PRODUCT_VALIDATION_RULES,
+  VALIDATION_MESSAGES,
+  validateBarcode,
+  validatePrice,
+} from './validation';
+
+// Component types
+export type {
+  ScannerState,
+  PermissionState,
+  ScannerStateObject,
+  BarcodeScannerProps,
+  ProductDisplayProps,
+  ProductLoadingState,
+  ScannerPageState,
+  ScannerPageActions,
+  ToastType,
+  ToastMessage,
+  ToastContextValue,
+  LoadingButtonProps,
+  ErrorBoundaryState,
+  ErrorBoundaryProps,
+  ModalProps,
+  ConfirmationDialogProps,
+  CameraPermissionStatus,
+  DeviceCapabilities,
+  AppConfig,
+} from './components';

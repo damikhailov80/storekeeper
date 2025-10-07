@@ -1,24 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Storekeeper
+
+Веб-приложение для управления складом с функцией сканирования штрихкодов. Позволяет сканировать штрихкоды товаров с помощью камеры мобильного устройства и получать информацию о товарах из базы данных.
+
+## Технологии
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL (Prisma Postgres для разработки)
+- **Сканирование**: @zxing/library
 
 ## Getting Started
 
-First, run the development server:
+### 1. Установка зависимостей
+
+```bash
+npm install
+```
+
+### 2. Настройка базы данных
+
+База данных уже настроена с Prisma Postgres. Для применения миграций:
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 3. Запуск приложения
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Работа с базой данных
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Просмотр данных через Prisma Studio
+
+```bash
+npx prisma studio
+```
+
+Откроет веб-интерфейс для просмотра и редактирования данных в браузере на http://localhost:5555
+
+### Подключение к базе данных вручную
+
+**Через psql:**
+```bash
+# Используйте параметры из декодированного DATABASE_URL
+psql postgresql://postgres:postgres@localhost:51214/template1
+```
+
+**Через любой PostgreSQL клиент:**
+- **Host**: localhost
+- **Port**: 51214
+- **Database**: template1  
+- **Username**: postgres
+- **Password**: postgres
+
+### Полезные команды Prisma
+
+```bash
+# Просмотр статуса миграций
+npx prisma migrate status
+
+# Сброс базы данных
+npx prisma migrate reset
+
+# Применение изменений схемы без миграции
+npx prisma db push
+```
 
 ## Learn More
 

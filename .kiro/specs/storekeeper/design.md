@@ -18,10 +18,10 @@ graph TB
     B --> E[Next.js API Routes]
     E --> F[Database Service Layer]
     F --> G[PostgreSQL Database]
-    
+
     H[Development Environment] --> I[Local PostgreSQL]
     H --> J[Next.js Dev Server]
-    
+
     K[Production Environment] --> L[Vercel/Railway]
     L --> M[Production PostgreSQL]
 ```
@@ -29,6 +29,7 @@ graph TB
 ### Technology Stack
 
 **Frontend:**
+
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS для стилизации
@@ -36,15 +37,18 @@ graph TB
 - React Hook Form для управления формами
 
 **Backend:**
+
 - Next.js API Routes
 - Prisma ORM для работы с базой данных
 - Zod для валидации данных
 
 **Database:**
+
 - PostgreSQL
 - Prisma для миграций и схемы
 
 **Development & Deployment:**
+
 - Docker для локальной разработки
 - Vercel или Railway для деплоя
 - GitHub Actions для CI/CD
@@ -54,6 +58,7 @@ graph TB
 ### Frontend Components
 
 #### 1. BarcodeScanner Component
+
 ```typescript
 interface BarcodeScannerProps {
   onScanSuccess: (barcode: string) => void;
@@ -63,12 +68,14 @@ interface BarcodeScannerProps {
 ```
 
 **Responsibilities:**
+
 - Управление доступом к камере
 - Инициализация библиотеки сканирования
 - Обработка результатов сканирования
 - Отображение видеопотока
 
 #### 2. ProductDisplay Component
+
 ```typescript
 interface ProductDisplayProps {
   product: Product | null;
@@ -78,11 +85,13 @@ interface ProductDisplayProps {
 ```
 
 **Responsibilities:**
+
 - Отображение информации о товаре
 - Обработка состояний загрузки и ошибок
 - Адаптивный дизайн для мобильных устройств
 
 #### 3. ScannerPage Component
+
 ```typescript
 interface ScannerPageState {
   isScanning: boolean;
@@ -94,6 +103,7 @@ interface ScannerPageState {
 ```
 
 **Responsibilities:**
+
 - Координация между сканером и отображением продукта
 - Управление состоянием приложения
 - Обработка пользовательских действий
@@ -101,6 +111,7 @@ interface ScannerPageState {
 ### Backend API Interfaces
 
 #### 1. Product Search API
+
 ```typescript
 // GET /api/products/[barcode]
 interface ProductSearchResponse {
@@ -111,6 +122,7 @@ interface ProductSearchResponse {
 ```
 
 #### 2. Health Check API
+
 ```typescript
 // GET /api/health
 interface HealthCheckResponse {
@@ -123,6 +135,7 @@ interface HealthCheckResponse {
 ### Service Layer
 
 #### 1. ProductService
+
 ```typescript
 interface ProductService {
   findByBarcode(barcode: string): Promise<Product | null>;
@@ -132,6 +145,7 @@ interface ProductService {
 ```
 
 #### 2. DatabaseService
+
 ```typescript
 interface DatabaseService {
   connect(): Promise<void>;
@@ -143,6 +157,7 @@ interface DatabaseService {
 ## Data Models
 
 ### Product Model
+
 ```typescript
 interface Product {
   id: string;
@@ -159,6 +174,7 @@ interface Product {
 ```
 
 ### Database Schema (Prisma)
+
 ```prisma
 model Product {
   id          String   @id @default(cuid())
@@ -213,6 +229,7 @@ model Product {
    - Недостаточные права доступа
 
 ### Error Response Format
+
 ```typescript
 interface ErrorResponse {
   success: false;
@@ -228,22 +245,26 @@ interface ErrorResponse {
 ## Testing Strategy
 
 ### Unit Testing
+
 - **Frontend Components**: React Testing Library + Jest
 - **API Routes**: Jest + Supertest
 - **Service Layer**: Jest + Mock Database
 - **Utility Functions**: Jest
 
 ### Integration Testing
+
 - **API Integration**: Test API routes with real database
 - **Database Integration**: Test Prisma queries
 - **Camera Integration**: Mock camera API for testing
 
 ### End-to-End Testing
+
 - **Playwright** для тестирования пользовательских сценариев
 - **Mobile Testing**: Тестирование на различных мобильных устройствах
 - **Cross-browser Testing**: Chrome, Safari, Firefox
 
 ### Performance Testing
+
 - **Lighthouse** для анализа производительности
 - **Bundle Analysis**: Анализ размера JavaScript бандлов
 - **Database Performance**: Тестирование запросов к базе данных
@@ -251,6 +272,7 @@ interface ErrorResponse {
 ## Development Environment Setup
 
 ### Local Development Stack
+
 ```yaml
 services:
   postgres:
@@ -260,12 +282,12 @@ services:
       POSTGRES_USER: dev_user
       POSTGRES_PASSWORD: dev_password
     ports:
-      - "5432:5432"
-  
+      - '5432:5432'
+
   app:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       DATABASE_URL: postgresql://dev_user:dev_password@postgres:5432/warehouse_dev
     depends_on:
@@ -273,6 +295,7 @@ services:
 ```
 
 ### Environment Variables
+
 ```env
 # Database
 DATABASE_URL=postgresql://username:password@localhost:5432/warehouse_db
@@ -288,40 +311,42 @@ NODE_ENV=development
 ### Test Data Setup
 
 #### Sample Products for Testing
+
 ```typescript
 const sampleProducts = [
   {
-    barcode: "1234567890123",
-    name: "Смартфон Samsung Galaxy",
-    description: "Флагманский смартфон с камерой 108MP",
-    price: 45000.00,
+    barcode: '1234567890123',
+    name: 'Смартфон Samsung Galaxy',
+    description: 'Флагманский смартфон с камерой 108MP',
+    price: 45000.0,
     quantity: 15,
-    category: "Электроника",
-    supplier: "Samsung Electronics"
+    category: 'Электроника',
+    supplier: 'Samsung Electronics',
   },
   {
-    barcode: "9876543210987",
-    name: "Молоко 3.2%",
-    description: "Пастеризованное молоко 1л",
-    price: 85.50,
+    barcode: '9876543210987',
+    name: 'Молоко 3.2%',
+    description: 'Пастеризованное молоко 1л',
+    price: 85.5,
     quantity: 50,
-    category: "Продукты питания",
-    supplier: "Молочный завод №1"
+    category: 'Продукты питания',
+    supplier: 'Молочный завод №1',
   },
   {
-    barcode: "5555555555555",
-    name: "Ручка шариковая синяя",
-    description: "Ручка шариковая, синие чернила",
-    price: 25.00,
+    barcode: '5555555555555',
+    name: 'Ручка шариковая синяя',
+    description: 'Ручка шариковая, синие чернила',
+    price: 25.0,
     quantity: 200,
-    category: "Канцелярия",
-    supplier: "OfficeMax"
-  }
+    category: 'Канцелярия',
+    supplier: 'OfficeMax',
+  },
   // ... дополнительные тестовые товары
 ];
 ```
 
 #### Database Seeding Script
+
 ```typescript
 // prisma/seed.ts
 import { PrismaClient } from '@prisma/client';
@@ -331,11 +356,11 @@ const prisma = new PrismaClient();
 async function main() {
   // Очистка существующих данных
   await prisma.product.deleteMany();
-  
+
   // Создание тестовых товаров
   for (const product of sampleProducts) {
     await prisma.product.create({
-      data: product
+      data: product,
     });
   }
 }
@@ -346,18 +371,21 @@ async function main() {
 ### Production Deployment Options
 
 #### Option 1: Vercel + Railway
+
 - **Frontend**: Vercel для Next.js приложения
 - **Database**: Railway PostgreSQL
 - **Advantages**: Простота настройки, автоматический деплой
 - **Considerations**: Ограничения бесплатного плана
 
 #### Option 2: Docker + VPS
+
 - **Infrastructure**: Docker Compose на VPS
 - **Database**: PostgreSQL в контейнере
 - **Advantages**: Полный контроль, экономичность
 - **Considerations**: Требует больше настройки
 
 ### CI/CD Pipeline
+
 ```yaml
 name: Deploy
 on:
@@ -371,7 +399,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run tests
         run: npm test
-  
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
@@ -420,17 +448,20 @@ jobs:
 ## Security Considerations
 
 ### Frontend Security
+
 - **HTTPS Only**: Принудительное использование HTTPS
 - **Content Security Policy**: Ограничение загрузки ресурсов
 - **Camera Permissions**: Безопасная обработка разрешений
 
 ### Backend Security
+
 - **Input Validation**: Валидация всех входящих данных
 - **SQL Injection Prevention**: Использование Prisma ORM
 - **Rate Limiting**: Ограничение частоты запросов
 - **CORS Configuration**: Настройка разрешенных источников
 
 ### Database Security
+
 - **Connection Encryption**: SSL соединения
 - **Access Control**: Ограниченные права пользователей
 - **Backup Strategy**: Регулярные резервные копии

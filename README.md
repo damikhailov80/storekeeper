@@ -31,8 +31,8 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone <repository-url>
-cd warehouse-barcode-scanner
+git clone git@github.com:damikhailov80/storekeeper.git
+cd storekeeper
 ```
 
 2. Установите зависимости:

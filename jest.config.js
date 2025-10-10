@@ -27,6 +27,12 @@ const customJestConfig = {
     '<rootDir>/src/app/api/__tests__/',
     '<rootDir>/src/lib/middleware/__tests__/',
   ],
+  // Включаем integration тесты
+  testMatch: [
+    '**/__tests__/**/*.(ts|tsx|js)',
+    '**/*.(test|spec).(ts|tsx|js)',
+    '**/__tests__/integration/**/*.(ts|tsx|js)',
+  ],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

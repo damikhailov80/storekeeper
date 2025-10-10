@@ -15,6 +15,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:types": "jest --testPathPatterns=types.test.ts",
+    "db:start": "docker run --name pg -e POSTGRES_PASSWORD=1234 -p 5433:5432 -d postgres",
+    "db:stop": "docker stop pg && docker rm pg",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
     "db:setup": "prisma generate && prisma db push && npm run db:seed"
@@ -25,7 +27,8 @@
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

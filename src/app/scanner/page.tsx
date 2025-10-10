@@ -1,10 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import BarcodeScanner from '@/components/scanner/BarcodeScanner';
 import { useBarcodeScanner } from '@/hooks/useBarcodeScanner';
 import { Button } from '@/components/ui/button';
 
-export default function Home() {
+export default function ScannerPage() {
   const {
     isActive,
     scannerState,

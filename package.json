@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -H 0.0.0.0",
+    "dev:https": "node server.js",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "next lint",
@@ -23,6 +24,8 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "clsx": "^2.1.1",
     "next": "15.5.4",
     "react": "19.1.0",

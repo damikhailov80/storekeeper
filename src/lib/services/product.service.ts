@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Product } from '@/types/product';
+import { ProductData } from '@/types/product';
 
 const prisma = new PrismaClient();
 
@@ -7,7 +7,7 @@ export class ProductService {
   /**
    * Найти товар по штрихкоду
    */
-  static async findByBarcode(barcode: string): Promise<Product | null> {
+  static async findByBarcode(barcode: string): Promise<ProductData | null> {
     try {
       const product = await prisma.product.findUnique({
         where: {
@@ -19,10 +19,12 @@ export class ProductService {
         return null;
       }
 
-      // Преобразуем Decimal в number для совместимости с типами
+      // Преобразуем Decimal в number и Date в string для клиента
       return {
         ...product,
         price: Number(product.price),
+        createdAt: product.createdAt.toISOString(),
+        updatedAt: product.updatedAt.toISOString(),
       };
     } catch (error) {
       console.error('Ошибка при поиске товара по штрихкоду:', error);

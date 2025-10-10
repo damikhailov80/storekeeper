@@ -59,13 +59,13 @@ export class RequestLogger {
     }
 
     // Fallback для локальной разработки
-    return request.ip || 'unknown';
+    return 'unknown';
   }
 
   /**
    * Создает обертку для API route с логированием
    */
-  static withLogging<T extends any[]>(
+  static withLogging<T extends unknown[]>(
     handler: (request: NextRequest, ...args: T) => Promise<Response>
   ) {
     return async (request: NextRequest, ...args: T): Promise<Response> => {

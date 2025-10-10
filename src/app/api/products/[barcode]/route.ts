@@ -15,11 +15,14 @@ import { RequestLogger } from '@/lib/middleware/logger';
  */
 async function getProductHandler(
   request: NextRequest,
-  { params }: { params: { barcode: string } }
+  { params }: { params: Promise<{ barcode: string }> }
 ) {
   try {
+    // Await params in Next.js 15
+    const { barcode: barcodeParam } = await params;
+    
     // Валидация штрихкода
-    const validationResult = BarcodeSchema.safeParse(params.barcode);
+    const validationResult = BarcodeSchema.safeParse(barcodeParam);
     
     if (!validationResult.success) {
       return handleValidationError(validationResult.error);
@@ -40,10 +43,10 @@ async function getProductHandler(
     }
 
     return createSuccessResponse(product);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Обработка ошибок базы данных
-    if (error.code && error.code.startsWith('P')) {
-      return handleDatabaseError(error);
+    if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'string' && error.code.startsWith('P')) {
+      return handleDatabaseError(error as { code: string });
     }
 
     // Общая обработка ошибок

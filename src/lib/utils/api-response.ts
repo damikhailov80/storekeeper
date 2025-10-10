@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { ApiResponse, ApiError } from '@/types/api';
+import { ZodError } from 'zod';
+import { ApiResponse } from '@/types/api';
 
 /**
  * Создать успешный API ответ
@@ -24,13 +25,13 @@ export function createSuccessResponse<T>(
 export function createErrorResponse(
   code: string,
   message: string,
-  details?: any,
+  details?: unknown,
   status: number = 400
 ): NextResponse<ApiResponse<null>> {
-  const error: ApiError = {
+  const error = {
     code,
     message,
-    ...(details && { details }),
+    ...(details ? { details } : {}),
   };
 
   return NextResponse.json(
@@ -46,33 +47,24 @@ export function createErrorResponse(
 /**
  * Обработать ошибки валидации Zod
  */
-export function handleValidationError(error: any): NextResponse<ApiResponse<null>> {
-  if (error.name === 'ZodError') {
-    const validationErrors = error.issues.map((issue: any) => ({
-      field: issue.path.join('.'),
-      message: issue.message,
-    }));
-
-    return createErrorResponse(
-      'VALIDATION_ERROR',
-      'Ошибка валидации данных',
-      { validationErrors },
-      400
-    );
-  }
+export function handleValidationError(error: ZodError): NextResponse<ApiResponse<null>> {
+  const validationErrors = error.issues.map((issue) => ({
+    field: issue.path.join('.'),
+    message: issue.message,
+  }));
 
   return createErrorResponse(
-    'INTERNAL_ERROR',
-    'Внутренняя ошибка сервера',
-    undefined,
-    500
+    'VALIDATION_ERROR',
+    'Ошибка валидации данных',
+    { validationErrors },
+    400
   );
 }
 
 /**
  * Обработать ошибки базы данных
  */
-export function handleDatabaseError(error: any): NextResponse<ApiResponse<null>> {
+export function handleDatabaseError(error: { code?: string }): NextResponse<ApiResponse<null>> {
   console.error('Database error:', error);
 
   // Prisma ошибки

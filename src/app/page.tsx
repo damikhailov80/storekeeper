@@ -1,10 +1,18 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import BarcodeScanner from '@/components/scanner/BarcodeScanner';
 import { useBarcodeScanner } from '@/hooks/useBarcodeScanner';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
+  const router = useRouter();
+  
+  const handleScanComplete = (barcode: string) => {
+    // Redirect to product page after successful scan
+    router.push(`/product/${barcode}`);
+  };
+
   const {
     isActive,
     scannerState,
@@ -16,7 +24,7 @@ export default function Home() {
     handleScanError,
     handlePermissionChange,
     handleStateChange,
-  } = useBarcodeScanner();
+  } = useBarcodeScanner(handleScanComplete);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">

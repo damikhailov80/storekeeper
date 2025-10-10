@@ -3,6 +3,23 @@
  * Тестируют устойчивость системы к различным типам ошибок
  */
 
+// Мокаем Next.js server для тестов API routes
+jest.mock('next/server', () => ({
+  NextRequest: jest.fn().mockImplementation((url) => ({
+    url,
+    method: 'GET',
+    headers: new Map([['user-agent', 'test-agent']]),
+    nextUrl: { searchParams: new URLSearchParams() },
+  })),
+  NextResponse: {
+    json: jest.fn((data, init) => ({
+      json: () => Promise.resolve(data),
+      status: init?.status || 200,
+      headers: new Map(),
+    })),
+  },
+}));
+
 import { NextRequest } from 'next/server';
 import { GET as getProduct } from '@/app/api/products/[barcode]/route';
 import { GET as healthCheck } from '@/app/api/health/route';

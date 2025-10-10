@@ -35,7 +35,7 @@ async function healthCheckHandler(request: NextRequest) {
         { status: 503 }
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Ошибка в health check:', error);
     
     const healthStatus = {

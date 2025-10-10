@@ -125,8 +125,8 @@ export default function BarcodeScanner({
           <video
             ref={videoRef}
             className="w-full h-auto rounded-lg shadow-lg"
-            playsInline
-            muted
+            playsInline={true}
+            muted={true}
           />
           
           {scannerState === 'active' && !cameraError && (

@@ -99,7 +99,7 @@ export default function Home() {
           <ul className="space-y-2 text-sm text-gray-600">
             <li className="flex items-start">
               <span className="mr-2">1.</span>
-              <span>Нажмите "Начать сканирование" для активации камеры</span>
+              <span>Нажмите &quot;Начать сканирование&quot; для активации камеры</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2">2.</span>

@@ -185,17 +185,143 @@ export default function ScannerPage() {
 - ✅ Поддержка передней и задней камеры
 - ✅ Адаптивный дизайн для мобильных устройств
 
-## Learn More
+## Тестирование
 
-To learn more about Next.js, take a look at the following resources:
+### Запуск тестов
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Все тесты
+npm test
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Тесты в watch режиме
+npm run test:watch
 
-## Deploy on Vercel
+# Тесты с покрытием
+npm run test:coverage
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Только тесты типов
+npm run test:types
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Типы тестов
+
+- **Unit тесты**: Тестирование отдельных компонентов и функций
+- **Integration тесты**: Тестирование взаимодействия между компонентами
+- **API тесты**: Тестирование API endpoints
+
+## Production Deployment
+
+### Быстрый старт
+
+```bash
+# Проверка готовности к деплою
+./scripts/check-deployment-ready.sh
+
+# Деплой на Vercel
+npm i -g vercel
+vercel --prod
+```
+
+### Документация
+
+- 📖 [Руководство по деплою](DEPLOYMENT.md) - полная инструкция
+- 🗄️ [Настройка базы данных](docs/database-setup.md)
+
+### Переменные окружения
+
+Создайте `.env.production` на основе `.env.production.example`:
+
+```env
+DATABASE_URL=postgresql://user:password@host:port/database
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+```
+
+### Миграции в production
+
+```bash
+# Применить миграции
+npm run db:migrate:deploy
+
+# Заполнить тестовыми данными (опционально)
+npm run db:seed
+```
+
+## Структура проекта
+
+```
+storekeeper/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/               # API routes
+│   │   │   ├── health/        # Health check endpoint
+│   │   │   └── products/      # Products API
+│   │   ├── product/           # Product pages
+│   │   └── page.tsx           # Home page
+│   ├── components/            # React компоненты
+│   │   ├── scanner/           # Компонент сканера
+│   │   ├── product/           # Компоненты товаров
+│   │   └── ui/                # UI компоненты
+│   ├── hooks/                 # Custom React hooks
+│   ├── lib/                   # Утилиты и сервисы
+│   │   ├── services/          # Бизнес-логика
+│   │   ├── validations/       # Zod схемы валидации
+│   │   └── utils/             # Вспомогательные функции
+│   └── types/                 # TypeScript типы
+├── prisma/                    # Prisma ORM
+│   ├── migrations/            # Миграции БД
+│   ├── schema.prisma          # Схема БД
+│   └── seed.ts                # Тестовые данные
+├── docs/                      # Документация
+│   ├── deployment.md          # Руководство по деплою
+│   ├── database-setup.md      # Настройка БД
+│   └── scanner-usage.md       # Использование сканера
+└── scripts/                   # Утилиты
+    └── check-deployment-ready.sh
+```
+
+## Скрипты
+
+```bash
+# Разработка
+npm run dev              # Запуск dev сервера (HTTP)
+npm run dev:https        # Запуск dev сервера (HTTPS)
+
+# Сборка и запуск
+npm run build            # Production сборка
+npm start                # Запуск production сервера
+
+# Качество кода
+npm run lint             # Проверка ESLint
+npm run lint:fix         # Исправление ESLint ошибок
+npm run format           # Форматирование кода
+npm run format:check     # Проверка форматирования
+npm run type-check       # Проверка TypeScript типов
+
+# Тестирование
+npm test                 # Запуск всех тестов
+npm run test:watch       # Тесты в watch режиме
+npm run test:coverage    # Тесты с покрытием
+
+# База данных
+npm run db:start         # Запуск PostgreSQL в Docker
+npm run db:stop          # Остановка PostgreSQL
+npm run db:seed          # Заполнение тестовыми данными
+npm run db:reset         # Сброс и пересоздание БД
+npm run db:setup         # Полная настройка БД
+
+# Деплой
+npm run db:migrate:deploy    # Применить миграции в production
+npm run vercel-build         # Сборка для Vercel
+```
+
+## Дополнительные ресурсы
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [ZXing Library](https://github.com/zxing-js/library)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+
+## Лицензия
+
+MIT

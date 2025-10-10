@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack -H 0.0.0.0",
     "dev:https": "node server.js",
-    "build": "next build --turbopack",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -20,7 +20,11 @@
     "db:stop": "docker stop pg && docker rm pg",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
-    "db:setup": "prisma generate && prisma db push && npm run db:seed"
+    "db:setup": "prisma generate && prisma db push && npm run db:seed",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:prod": "prisma migrate deploy && npm run db:seed",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",

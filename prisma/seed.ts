@@ -165,6 +165,15 @@ const sampleProducts = [
     quantity: 80,
     category: 'Продукты питания',
     supplier: 'Данон Россия',
+  },
+  {
+    barcode: '5909990944514',
+    name: 'Називин капли для носа',
+    description: 'Капли для носа, сосудосуживающее средство 0.05%, 10мл',
+    price: 189.00,
+    quantity: 45,
+    category: 'Медикаменты',
+    supplier: 'Merck KGaA',
   }
 ];
 

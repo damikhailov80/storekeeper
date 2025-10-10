@@ -87,10 +87,10 @@ describe('Error Scenarios Integration Tests', () => {
     it('должен обрабатывать ошибки Prisma', async () => {
       // Arrange - различные типы Prisma ошибок
       const prismaErrors = [
-        { code: 'P2002', message: 'Unique constraint failed' },
-        { code: 'P2025', message: 'Record not found' },
-        { code: 'P1001', message: 'Cannot reach database server' },
-        { code: 'P1008', message: 'Operations timed out' },
+        { code: 'P2002', message: 'Unique constraint failed', expectedStatus: 409, expectedCode: 'DUPLICATE_ERROR' },
+        { code: 'P2025', message: 'Record not found', expectedStatus: 404, expectedCode: 'NOT_FOUND' },
+        { code: 'P1001', message: 'Cannot reach database server', expectedStatus: 500, expectedCode: 'DATABASE_ERROR' },
+        { code: 'P1008', message: 'Operations timed out', expectedStatus: 500, expectedCode: 'DATABASE_ERROR' },
       ];
 
       for (const error of prismaErrors) {
@@ -104,9 +104,9 @@ describe('Error Scenarios Integration Tests', () => {
         const data = await response.json();
 
         // Assert
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(error.expectedStatus);
         expect(data.success).toBe(false);
-        expect(data.error.code).toBe('DATABASE_ERROR');
+        expect(data.error.code).toBe(error.expectedCode);
 
         // Очищаем моки для следующей итерации
         jest.clearAllMocks();
@@ -135,7 +135,7 @@ describe('Error Scenarios Integration Tests', () => {
         expect(response.status).toBe(400);
         expect(data.success).toBe(false);
         expect(data.error.code).toBe('VALIDATION_ERROR');
-        expect(data.error.details.issues[0].message).toBe(expectedMessage);
+        expect(data.error.details?.validationErrors?.[0]?.message).toBe(expectedMessage);
 
         // Проверяем, что запрос к базе данных не выполнялся
         expect(mockProductService.findByBarcode).not.toHaveBeenCalled();

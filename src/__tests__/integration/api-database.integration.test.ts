@@ -123,7 +123,7 @@ describe('API Database Integration Tests', () => {
     });
 
     it('должен обрабатывать Prisma ошибки базы данных', async () => {
-      // Arrange - имитируем Prisma ошибку
+      // Arrange - имитируем Prisma ошибку P2002 (duplicate)
       const prismaError = { code: 'P2002', message: 'Unique constraint failed' };
       mockProductService.findByBarcode.mockRejectedValue(prismaError);
 
@@ -134,10 +134,10 @@ describe('API Database Integration Tests', () => {
       const response = await getProduct(request, { params });
       const data = await response.json();
 
-      // Assert
-      expect(response.status).toBe(500);
+      // Assert - P2002 returns 409 with DUPLICATE_ERROR
+      expect(response.status).toBe(409);
       expect(data.success).toBe(false);
-      expect(data.error.code).toBe('DATABASE_ERROR');
+      expect(data.error.code).toBe('DUPLICATE_ERROR');
     });
 
     it('должен валидировать штрихкод перед запросом к базе данных', async () => {

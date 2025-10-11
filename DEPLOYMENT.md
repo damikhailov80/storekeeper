@@ -34,15 +34,6 @@ git push origin main
 2. Vercel автоматически добавит переменные окружения
 3. Переименуйте `POSTGRES_URL_NON_POOLING` в `DATABASE_URL`
 
-**Вариант B: Внешняя база данных**
-
-1. Создайте PostgreSQL на [neon.tech](https://neon.tech) или [supabase.com](https://supabase.com)
-2. Скопируйте connection string
-3. В Vercel: **Settings** → **Environment Variables** → добавьте:
-   - Name: `DATABASE_URL`
-   - Value: `postgresql://user:password@host:port/database`
-   - Environment: Production
-
 ### Шаг 4: Деплой
 
 1. Нажмите **"Deploy"**
@@ -182,4 +173,4 @@ npm run db:migrate:deploy
 
 - [Vercel Documentation](https://vercel.com/docs)
 - [Next.js Deployment](https://nextjs.org/docs/deployment)
-- [Prisma Deployment](https://www.prisma.io/docs/guides/deployment)
+- [Prisma Deployment](https://www.prisma.io/docs/guides

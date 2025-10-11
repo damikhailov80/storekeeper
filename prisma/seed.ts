@@ -174,6 +174,15 @@ const sampleProducts = [
     quantity: 45,
     category: 'Медикаменты',
     supplier: 'Merck KGaA',
+  },
+  {
+    barcode: '5900014003569',
+    name: 'Пиво Карлсберг',
+    description: 'Светлое пиво, 0.5л',
+    price: 129.00,
+    quantity: 100,
+    category: 'Напитки',
+    supplier: 'Carlsberg Group',
   }
 ];
 
@@ -186,7 +195,7 @@ async function main() {
 
   // Создание тестовых товаров
   console.log('📦 Создаем тестовые товары...');
-  
+
   for (const product of sampleProducts) {
     await prisma.product.create({
       data: product,

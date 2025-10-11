@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# npm config (project-specific registry)
+.npmrc
+
 # SSL certificates
 .ssl/
 

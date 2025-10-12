@@ -1,5 +1,4 @@
 import { ProductData } from './product';
-import { AppError } from './errors';
 
 /**
  * Scanner state types

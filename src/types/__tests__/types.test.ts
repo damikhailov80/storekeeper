@@ -6,13 +6,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import {
   Product,
   ProductData,
-  CreateProductInput,
-  UpdateProductInput,
   ApiResponse,
-  ProductSearchResponse,
-  HealthCheckResponse,
-  BarcodeScannerProps,
-  ScannerPageState,
   AppError,
   ErrorType,
   validateBarcode,

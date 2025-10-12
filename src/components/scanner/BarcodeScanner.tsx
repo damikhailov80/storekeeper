@@ -9,14 +9,12 @@ export default function BarcodeScanner({
   onScanError,
   isActive,
   className = '',
-  facingMode = 'environment',
   onPermissionChange,
   onStateChange,
 }: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scannerState, setScannerState] = useState<ScannerState>('inactive');
-  const [permissionState, setPermissionState] = useState<PermissionState>('prompt');
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
 
   useEffect(() => {
@@ -30,6 +28,7 @@ export default function BarcodeScanner({
     return () => {
       stopScanning();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
   const updateScannerState = (state: ScannerState) => {
@@ -38,7 +37,6 @@ export default function BarcodeScanner({
   };
 
   const updatePermissionState = (state: PermissionState) => {
-    setPermissionState(state);
     onPermissionChange?.(state);
   };
 
@@ -86,7 +84,7 @@ export default function BarcodeScanner({
       setCameraError(errorMessage);
       onScanError(errorMessage);
       updateScannerState('error');
-      
+
       // Определяем состояние разрешения на основе ошибки
       if (error instanceof Error && error.name === 'NotAllowedError') {
         updatePermissionState('denied');
@@ -128,7 +126,7 @@ export default function BarcodeScanner({
             playsInline={true}
             muted={true}
           />
-          
+
           {scannerState === 'active' && !cameraError && (
             <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
               Сканирование активно

@@ -1,7 +1,5 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { BrowserMultiFormatReader } from '@zxing/library';
 import BarcodeScanner from '../BarcodeScanner';
 
 // Mock @zxing/library

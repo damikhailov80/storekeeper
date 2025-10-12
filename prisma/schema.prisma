@@ -7,17 +7,151 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id          String   @id @default(cuid())
-  barcode     String   @unique
-  name        String
-  description String?
-  price       Decimal  @db.Decimal(10, 2)
-  quantity    Int      @default(0)
-  category    String?
-  supplier    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model ean_data {
+  ean          String    @id @db.VarChar(20)
+  name         String?
+  quantity     Int?      @default(0)
+  min_quantity Int?      @default(5)
+  location     String?   @db.VarChar(100)
+  category     String?   @default("Cosmetics") @db.VarChar(100)
+  unit         String?   @default("pieces") @db.VarChar(20)
+  price        Decimal?  @db.Decimal(10, 2)
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @default(now()) @db.Timestamp(6)
 
-  @@map("products")
+  @@map("ean_data")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model allegro_mapper {
+  ean              String? @db.VarChar(20)
+  id_oferty        String? @db.VarChar(20)
+  id_produktu      String? @db.VarChar(50)
+  kategoria_glowna String? @db.VarChar(100)
+  podkategoria     String? @db.VarChar(100)
+  sku              String? @db.VarChar(50)
+  tytul_oferty     String?
+
+  @@index([ean], map: "idx_allegro_mapper_ean")
+  @@index([id_oferty], map: "idx_allegro_mapper_id_oferty")
+  @@ignore
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model allegro_offer_list_costs_summary {
+  id                                 Int       @id(map: "allegro_offer_list_costs_summary_pkey1") @default(autoincrement())
+  reporting_period                   String    @db.VarChar(100)
+  oferta                             String?   @db.VarChar(255)
+  offer_number                       String    @db.VarChar(100)
+  offer_status                       String    @db.VarChar(50)
+  sales_and_delivery_value_pln       Decimal?  @db.Decimal(12, 2)
+  fees_pln                           Decimal?  @db.Decimal(12, 2)
+  sales_and_delivery_percentage      Decimal?  @db.Decimal(8, 4)
+  units_sold                         Int?
+  margin                             Decimal?  @db.Decimal(8, 4)
+  campaign_sales_commission          Decimal?  @db.Decimal(12, 2)
+  coin_fee                           Decimal?  @db.Decimal(12, 2)
+  dpd_operator_basic_fees            Decimal?  @db.Decimal(12, 2)
+  ups_operator_basic_fees            Decimal?  @db.Decimal(12, 2)
+  one_operator_basic_fees            Decimal?  @db.Decimal(12, 2)
+  dhl_operator_basic_fees            Decimal?  @db.Decimal(12, 2)
+  orlen_operator_basic_fees          Decimal?  @db.Decimal(12, 2)
+  highlighting_fee                   Decimal?  @db.Decimal(12, 2)
+  highlighted_offer_sales_commission Decimal?  @db.Decimal(12, 2)
+  dpd_shipping                       Decimal?  @db.Decimal(12, 2)
+  allegro_inpost_lockers             Decimal?  @db.Decimal(12, 2)
+  xpress_shipping                    Decimal?  @db.Decimal(12, 2)
+  sales_commission                   Decimal?  @db.Decimal(12, 2)
+  created_at                         DateTime? @default(now()) @db.Timestamp(6)
+  updated_at                         DateTime? @default(now()) @db.Timestamp(6)
+  source_currency                    String?   @db.VarChar(3)
+  conversion_date                    DateTime? @db.Date
+  ean                                String?   @db.VarChar(255)
+  sku                                String?   @db.VarChar(255)
+  id_produktu                        String?   @db.VarChar(255)
+
+  @@unique([offer_number, offer_status, reporting_period], map: "uk_allegro_offer_dedup")
+  @@index([ean], map: "idx_allegro_costs_ean")
+  @@index([id_produktu], map: "idx_allegro_costs_id_produktu")
+  @@index([sku], map: "idx_allegro_costs_sku")
+  @@index([created_at], map: "idx_allegro_created_at")
+  @@index([offer_number], map: "idx_allegro_offer_number")
+  @@index([offer_number, reporting_period], map: "idx_allegro_offer_number_period")
+  @@index([reporting_period, offer_status], map: "idx_allegro_offer_period_status")
+  @@index([offer_status], map: "idx_allegro_offer_status")
+  @@index([reporting_period], map: "idx_allegro_reporting_period")
+  @@index([updated_at], map: "idx_allegro_updated_at")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cost_of_goods {
+  ean             String?   @unique(map: "idx_cost_of_goods_ean") @db.VarChar(50)
+  cost_of_goods   Decimal?  @db.Decimal(10, 2)
+  currency        String?   @db.VarChar(3)
+  supply_date     DateTime? @db.Date
+  supply_date_pln Decimal?  @db.Decimal(15, 4)
+
+  @@index([supply_date], map: "idx_cost_of_goods_supply_date")
+  @@index([supply_date_pln], map: "idx_cost_of_goods_supply_date_pln")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model delivery_cost {
+  sku             String?   @db.VarChar(50)
+  delivery_cost   Decimal?  @db.Decimal
+  ean             String?   @db.VarChar(20)
+  currency        String?   @db.Char(3)
+  supply_date     DateTime? @db.Date
+  supply_date_pln Decimal?  @db.Decimal(15, 4)
+
+  @@unique([ean, sku], map: "idx_delivery_cost_ean_sku")
+  @@index([sku], map: "idx_delivery_cost_sku")
+  @@index([supply_date], map: "idx_delivery_cost_supply_date")
+  @@index([supply_date_pln], map: "idx_delivery_cost_supply_date_pln")
+  @@ignore
+}
+
+model merged_reports {
+  id                Int       @id @default(autoincrement())
+  id_produktu       String    @db.VarChar(255)
+  ean               String?   @db.VarChar(255)
+  sku               String?   @db.VarChar(255)
+  produkt           String?
+  sprzedane_sztuki  Decimal?  @db.Decimal(15, 2)
+  sr_cena_oferty    Decimal?  @db.Decimal(15, 2)
+  wartosc_sprzedazy Decimal?  @db.Decimal(15, 2)
+  dochod_pln        Decimal?  @db.Decimal(15, 2)
+  dochod_percent    Decimal?  @db.Decimal(8, 4)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  oplaty_allegro    Decimal?  @db.Decimal(15, 2)
+  cost_of_goods     Decimal?  @db.Decimal(15, 2)
+  delivery_cost     Decimal?  @db.Decimal(15, 2)
+
+  @@index([dochod_pln(sort: Desc)], map: "idx_merged_reports_dochod_pln")
+  @@index([ean], map: "idx_merged_reports_ean")
+  @@index([id_produktu], map: "idx_merged_reports_id_produktu")
+  @@index([sku], map: "idx_merged_reports_sku")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model prices_data {
+  sku             String    @id(map: "prices_data_pk") @db.VarChar
+  min_price       Decimal?  @default(0) @db.Decimal(10, 2)
+  id              Int       @default(autoincrement())
+  calculated_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @default(now()) @db.Timestamp(6)
+  cost_of_goods   Decimal?  @db.Decimal(10, 2)
+  delivery_cost   Decimal?  @db.Decimal(10, 2)
+  multiplier_used Decimal?  @db.Decimal(4, 2)
+  strategy_used   String?   @db.VarChar(20)
+
+  @@index([calculated_at], map: "idx_prices_data_calculated_at")
+  @@index([min_price], map: "idx_prices_data_min_price")
+  @@index([sku], map: "idx_prices_data_sku")
+  @@index([updated_at], map: "idx_prices_data_updated_at")
 }

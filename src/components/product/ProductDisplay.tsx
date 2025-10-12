@@ -131,11 +131,13 @@ export default function ProductDisplay({
 
         {/* Product details */}
         <div className="space-y-3 pt-4 border-t border-gray-200">
-          {/* Barcode */}
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600 font-medium">Штрихкод:</span>
-            <span className="text-gray-900 font-mono">{product.barcode}</span>
-          </div>
+          {/* EAN */}
+          {product.ean && (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 font-medium">EAN:</span>
+              <span className="text-gray-900 font-mono">{product.ean}</span>
+            </div>
+          )}
 
           {/* Price */}
           <div className="flex justify-between items-center">
@@ -150,42 +152,36 @@ export default function ProductDisplay({
             <span className="text-gray-600 font-medium">На складе:</span>
             <span
               className={`font-semibold ${
-                product.quantity > 10
+                product.quantity > product.min_quantity
                   ? 'text-green-600'
                   : product.quantity > 0
                     ? 'text-yellow-600'
                     : 'text-red-600'
               }`}
             >
-              {product.quantity} шт.
+              {product.quantity} {product.unit || 'шт.'}
             </span>
           </div>
+
+          {/* Min Quantity */}
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 font-medium">Мин. остаток:</span>
+            <span className="text-gray-900">{product.min_quantity} {product.unit || 'шт.'}</span>
+          </div>
+
+          {/* Location */}
+          {product.location && (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 font-medium">Расположение:</span>
+              <span className="text-gray-900">{product.location}</span>
+            </div>
+          )}
 
           {/* Category */}
           {product.category && (
             <div className="flex justify-between items-center">
               <span className="text-gray-600 font-medium">Категория:</span>
               <span className="text-gray-900">{product.category}</span>
-            </div>
-          )}
-
-          {/* Supplier */}
-          {product.supplier && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 font-medium">Поставщик:</span>
-              <span className="text-gray-900">{product.supplier}</span>
-            </div>
-          )}
-
-          {/* Description */}
-          {product.description && (
-            <div className="pt-3 border-t border-gray-200">
-              <span className="text-gray-600 font-medium block mb-2">
-                Описание:
-              </span>
-              <p className="text-gray-700 text-sm leading-relaxed">
-                {product.description}
-              </p>
             </div>
           )}
         </div>

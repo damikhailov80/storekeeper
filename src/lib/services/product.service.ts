@@ -5,26 +5,34 @@ const prisma = new PrismaClient();
 
 export class ProductService {
   /**
-   * Найти товар по штрихкоду
+   * Найти товар по штрихкоду (EAN)
    */
   static async findByBarcode(barcode: string): Promise<ProductData | null> {
     try {
-      const product = await prisma.product.findUnique({
+      console.log('[ProductService] Поиск товара по баркоду:', barcode);
+      const product = await prisma.ean_data.findUnique({
         where: {
-          barcode: barcode,
+          ean: barcode,
         },
       });
 
+      console.log('[ProductService] Результат из БД:', product ? 'найден' : 'не найден');
       if (!product) {
         return null;
       }
 
       // Преобразуем Decimal в number и Date в string для клиента
       return {
-        ...product,
-        price: Number(product.price),
-        createdAt: product.createdAt.toISOString(),
-        updatedAt: product.updatedAt.toISOString(),
+        ean: product.ean,
+        name: product.name,
+        quantity: product.quantity ?? 0,
+        min_quantity: product.min_quantity ?? 5,
+        location: product.location,
+        category: product.category,
+        unit: product.unit,
+        price: product.price ? Number(product.price) : 0,
+        created_at: product.created_at?.toISOString() ?? new Date().toISOString(),
+        updated_at: product.updated_at?.toISOString() ?? new Date().toISOString(),
       };
     } catch (error) {
       console.error('Ошибка при поиске товара по штрихкоду:', error);

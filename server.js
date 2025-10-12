@@ -34,7 +34,7 @@ app.prepare().then(() => {
       console.error(err);
       process.exit(1);
     })
-    .listen(port, () => {
+    .listen(port, hostname, () => {
       console.log(`> Ready on https://${hostname}:${port}`);
       console.log(`> Local: https://localhost:${port}`);
       console.log(`> Network: https://192.168.1.58:${port}`);

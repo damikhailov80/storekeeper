@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { ProductService } from '@/lib/services/product.service';
-import { createSuccessResponse, createErrorResponse } from '@/lib/utils/api-response';
+import { createSuccessResponse } from '@/lib/utils/api-response';
 import { RequestLogger } from '@/lib/middleware/logger';
 
 /**
  * GET /api/health
  * Проверка состояния системы и подключения к базе данных
  */
-async function healthCheckHandler(request: NextRequest) {
+async function healthCheckHandler() {
   try {
     // Проверка подключения к базе данных
     const isDatabaseConnected = await ProductService.healthCheck();

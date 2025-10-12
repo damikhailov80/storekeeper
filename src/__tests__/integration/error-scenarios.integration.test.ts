@@ -348,7 +348,7 @@ describe('Error Scenarios Integration Tests', () => {
         .mockResolvedValueOnce(mockProduct);
 
       // Act - три последовательных запроса
-      const requests = [1, 2, 3].map(async (i) => {
+      const requests = [1, 2, 3].map(async () => {
         const request = new NextRequest('http://localhost:3000/api/products/1234567890123');
         const params = Promise.resolve({ barcode: '1234567890123' });
         return await getProduct(request, { params });

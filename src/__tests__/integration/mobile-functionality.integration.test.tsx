@@ -9,7 +9,6 @@ import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import Home from '@/app/page';
 import ProductPage from '@/app/product/[barcode]/page';
-import { BrowserMultiFormatReader } from '@zxing/library';
 
 // Мокаем Next.js router
 jest.mock('next/navigation', () => ({

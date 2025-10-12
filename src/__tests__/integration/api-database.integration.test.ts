@@ -350,7 +350,7 @@ describe('API Database Integration Tests', () => {
       mockProductService.findByBarcode.mockResolvedValue(mockProduct);
 
       // Act - выполняем 5 одновременных запросов
-      const requests = Array.from({ length: 5 }, (_, i) => {
+      const requests = Array.from({ length: 5 }, () => {
         const request = new NextRequest(`http://localhost:3000/api/products/1111111111111`);
         const params = Promise.resolve({ barcode: '1111111111111' });
         return getProduct(request, { params });

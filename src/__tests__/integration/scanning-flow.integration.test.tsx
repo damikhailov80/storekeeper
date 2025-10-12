@@ -9,7 +9,6 @@ import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import Home from '@/app/page';
 import ProductPage from '@/app/product/[barcode]/page';
-import { BrowserMultiFormatReader } from '@zxing/library';
 
 // Мокаем Next.js router
 jest.mock('next/navigation', () => ({
@@ -299,8 +298,6 @@ describe('Scanning Flow Integration Tests', () => {
 
   describe('Error Recovery Integration', () => {
     it('должен восстанавливаться после сетевых ошибок', async () => {
-      const user = userEvent.setup();
-
       // Arrange
       const { useParams } = await import('next/navigation');
       const mockUseParams = useParams as jest.Mock;
@@ -350,7 +347,7 @@ describe('Scanning Flow Integration Tests', () => {
 
   describe('Mobile Functionality Integration', () => {
     it('должен корректно работать с мобильными жестами', async () => {
-      const user = userEvent.setup();
+      userEvent.setup();
 
       // Arrange - имитируем мобильное устройство
       Object.defineProperty(navigator, 'userAgent', {

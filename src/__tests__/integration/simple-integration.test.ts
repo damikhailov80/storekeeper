@@ -2,7 +2,6 @@
  * Упрощенные integration тесты для проверки основной функциональности
  */
 
-import { NextRequest } from 'next/server';
 import { ProductService } from '@/lib/services/product.service';
 
 // Мокаем ProductService

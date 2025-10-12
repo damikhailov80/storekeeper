@@ -8,7 +8,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductDisplay from '@/components/product/ProductDisplay';
 import BarcodeScanner from '@/components/scanner/BarcodeScanner';
-import { BrowserMultiFormatReader } from '@zxing/library';
 
 // Мокаем @zxing/library
 const mockDecodeFromVideoDevice = jest.fn();

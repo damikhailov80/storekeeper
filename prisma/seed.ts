@@ -183,6 +183,24 @@ const sampleProducts = [
     quantity: 100,
     category: 'Напитки',
     supplier: 'Carlsberg Group',
+  },
+  {
+    barcode: '8859126000508',
+    name: 'Natrathai Мангустиновое мыло',
+    description: 'Натуральное тайское мыло с экстрактом мангустина, увлажняющее и антиоксидантное, 100г',
+    price: 299.00,
+    quantity: 35,
+    category: 'Косметика',
+    supplier: 'Natrathai Co., Ltd',
+  },
+  {
+    barcode: '5901088013218',
+    name: 'Яблочный сок',
+    description: 'Натуральный яблочный сок 100%, 1л',
+    price: 149.00,
+    quantity: 50,
+    category: 'Напитки',
+    supplier: 'Сады Придонья',
   }
 ];
 

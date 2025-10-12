@@ -171,7 +171,7 @@ describe('ProductDisplay', () => {
 
       expect(screen.getByText(mockProduct.name)).toBeInTheDocument();
       expect(screen.getByText(mockProduct.barcode)).toBeInTheDocument();
-      expect(screen.getByText('99.99 ₽')).toBeInTheDocument();
+      expect(screen.getByText('99.99 zł')).toBeInTheDocument();
       expect(screen.getByText('15 шт.')).toBeInTheDocument();
     });
 
@@ -355,7 +355,7 @@ describe('ProductDisplay', () => {
         />
       );
 
-      expect(screen.getByText('123.50 ₽')).toBeInTheDocument();
+      expect(screen.getByText('123.50 zł')).toBeInTheDocument();
     });
   });
 

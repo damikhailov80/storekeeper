@@ -69,7 +69,7 @@ describe('Component Integration Tests', () => {
       // Assert - проверяем все элементы товара
       expect(screen.getByText(mockProduct.name)).toBeInTheDocument();
       expect(screen.getByText(mockProduct.barcode)).toBeInTheDocument();
-      expect(screen.getByText('299.99 ₽')).toBeInTheDocument();
+      expect(screen.getByText('299.99 zł')).toBeInTheDocument();
       expect(screen.getByText('15 шт.')).toBeInTheDocument();
       expect(screen.getByText(mockProduct.category!)).toBeInTheDocument();
       expect(screen.getByText(mockProduct.supplier!)).toBeInTheDocument();

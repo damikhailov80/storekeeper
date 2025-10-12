@@ -143,7 +143,7 @@ export default function ProductDisplay({
           <div className="flex justify-between items-center">
             <span className="text-gray-600 font-medium">Цена:</span>
             <span className="text-2xl font-bold text-green-600">
-              {product.price.toFixed(2)} ₽
+              {product.price.toFixed(2)} zł
             </span>
           </div>
 

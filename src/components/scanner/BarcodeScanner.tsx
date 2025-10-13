@@ -50,19 +50,34 @@ export default function BarcodeScanner({
         throw new Error('Ваш браузер не поддерживает доступ к камере');
       }
 
+      const videoElement = videoRef.current;
+      if (!videoElement) return;
+
       // Инициализация сканера
       if (!readerRef.current) {
         readerRef.current = new BrowserMultiFormatReader();
       }
 
-      const videoElement = videoRef.current;
-      if (!videoElement) return;
+      // Настройки для камеры с автофокусом
+      const constraints: MediaStreamConstraints = {
+        video: {
+          facingMode: 'environment', // задняя камера
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          // @ts-ignore - эти свойства поддерживаются на мобильных устройствах
+          focusMode: 'continuous',
+          // @ts-ignore
+          focusDistance: 0,
+          // @ts-ignore
+          advanced: [{ focusMode: 'continuous' }],
+        },
+      };
 
       updateScannerState('active');
 
-      // Запрос доступа к камере
-      await readerRef.current.decodeFromVideoDevice(
-        null, // используем камеру по умолчанию
+      // Запуск сканирования с constraints
+      await readerRef.current.decodeFromConstraints(
+        constraints,
         videoElement,
         (result, error) => {
           if (result) {
@@ -77,6 +92,35 @@ export default function BarcodeScanner({
           }
         }
       );
+
+      // Применяем дополнительные настройки фокуса после запуска
+      const stream = videoElement.srcObject as MediaStream;
+      if (stream) {
+        const videoTrack = stream.getVideoTracks()[0];
+        const capabilities = videoTrack.getCapabilities?.();
+
+        if (capabilities) {
+          const trackConstraints: any = {};
+
+          // Включаем автофокус, если поддерживается
+          if ('focusMode' in capabilities) {
+            trackConstraints.focusMode = 'continuous';
+          }
+
+          // Устанавливаем расстояние фокуса для макросъемки
+          if ('focusDistance' in capabilities) {
+            trackConstraints.focusDistance = 0;
+          }
+
+          if (Object.keys(trackConstraints).length > 0) {
+            try {
+              await videoTrack.applyConstraints(trackConstraints);
+            } catch (e) {
+              console.warn('Не удалось применить настройки фокуса:', e);
+            }
+          }
+        }
+      }
 
       updatePermissionState('granted');
     } catch (error) {
@@ -96,6 +140,15 @@ export default function BarcodeScanner({
     if (readerRef.current) {
       readerRef.current.reset();
     }
+
+    // Останавливаем все треки видеопотока
+    const videoElement = videoRef.current;
+    if (videoElement?.srcObject) {
+      const stream = videoElement.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoElement.srcObject = null;
+    }
+
     updateScannerState('inactive');
     setCameraError(null);
   };

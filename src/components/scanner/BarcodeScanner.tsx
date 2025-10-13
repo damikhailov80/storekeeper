@@ -59,7 +59,7 @@ export default function BarcodeScanner({
       }
 
       // Настройки для камеры с макрофокусом (5-15 см)
-      const constraints = {
+      const constraints: MediaStreamConstraints = {
         video: {
           facingMode: 'environment', // задняя камера
           width: { ideal: 1920 },
@@ -68,10 +68,10 @@ export default function BarcodeScanner({
             {
               focusMode: 'continuous',
               focusDistance: { ideal: 0.1 }, // 10 см - оптимально для штрихкодов
-            },
+            } as Record<string, unknown>,
           ],
         },
-      } as any;
+      };
 
       updateScannerState('active');
 
@@ -102,40 +102,40 @@ export default function BarcodeScanner({
         if (capabilities) {
           console.log('Возможности камеры:', capabilities);
 
-          const trackConstraints: any = {};
+          const trackConstraints: MediaTrackConstraints = {};
 
           // Включаем непрерывный автофокус для близких объектов
           if ('focusMode' in capabilities) {
-            trackConstraints.focusMode = 'continuous';
+            (trackConstraints as Record<string, unknown>).focusMode = 'continuous';
           }
 
           // Устанавливаем минимальное расстояние фокуса (макро режим)
           if ('focusDistance' in capabilities) {
-            const focusCaps = capabilities.focusDistance as any;
+            const focusCaps = (capabilities as Record<string, unknown>).focusDistance as { min?: number; max?: number } | undefined;
             // Используем минимальное значение для максимального приближения
-            if (focusCaps.min !== undefined) {
-              trackConstraints.focusDistance = focusCaps.min;
+            if (focusCaps?.min !== undefined) {
+              (trackConstraints as Record<string, unknown>).focusDistance = focusCaps.min;
             } else {
-              trackConstraints.focusDistance = 0.05; // 5 см
+              (trackConstraints as Record<string, unknown>).focusDistance = 0.05; // 5 см
             }
           }
 
           // Увеличиваем резкость для лучшего распознавания
           if ('sharpness' in capabilities) {
-            const sharpnessCaps = capabilities.sharpness as any;
-            if (sharpnessCaps.max !== undefined) {
-              trackConstraints.sharpness = sharpnessCaps.max;
+            const sharpnessCaps = (capabilities as Record<string, unknown>).sharpness as { min?: number; max?: number } | undefined;
+            if (sharpnessCaps?.max !== undefined) {
+              (trackConstraints as Record<string, unknown>).sharpness = sharpnessCaps.max;
             }
           }
 
           // Оптимизируем экспозицию для штрихкодов
           if ('exposureMode' in capabilities) {
-            trackConstraints.exposureMode = 'continuous';
+            (trackConstraints as Record<string, unknown>).exposureMode = 'continuous';
           }
 
           // Отключаем zoom для стабильности
           if ('zoom' in capabilities) {
-            trackConstraints.zoom = 1;
+            (trackConstraints as Record<string, unknown>).zoom = 1;
           }
 
           if (Object.keys(trackConstraints).length > 0) {

@@ -16,6 +16,7 @@ export default function BarcodeScanner({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scannerState, setScannerState] = useState<ScannerState>('inactive');
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
+  const focusIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isActive) {
@@ -58,18 +59,12 @@ export default function BarcodeScanner({
         readerRef.current = new BrowserMultiFormatReader();
       }
 
-      // Настройки для камеры с макрофокусом (5-15 см)
+      // Настройки для камеры - базовые параметры
       const constraints: MediaStreamConstraints = {
         video: {
           facingMode: 'environment', // задняя камера
           width: { ideal: 1920 },
           height: { ideal: 1080 },
-          advanced: [
-            {
-              focusMode: 'continuous',
-              focusDistance: { ideal: 0.1 }, // 10 см - оптимально для штрихкодов
-            } as Record<string, unknown>,
-          ],
         },
       };
 
@@ -93,7 +88,7 @@ export default function BarcodeScanner({
         }
       );
 
-      // Применяем дополнительные настройки фокуса после запуска
+      // Применяем настройки фокуса для макросъемки (5-15 см)
       const stream = videoElement.srcObject as MediaStream;
       if (stream) {
         const videoTrack = stream.getVideoTracks()[0];
@@ -102,50 +97,75 @@ export default function BarcodeScanner({
         if (capabilities) {
           console.log('Возможности камеры:', capabilities);
 
-          const trackConstraints: MediaTrackConstraints = {};
-
-          // Включаем непрерывный автофокус для близких объектов
-          if ('focusMode' in capabilities) {
-            (trackConstraints as Record<string, unknown>).focusMode = 'continuous';
-          }
-
-          // Устанавливаем минимальное расстояние фокуса (макро режим)
-          if ('focusDistance' in capabilities) {
-            const focusCaps = (capabilities as Record<string, unknown>).focusDistance as { min?: number; max?: number } | undefined;
-            // Используем минимальное значение для максимального приближения
-            if (focusCaps?.min !== undefined) {
-              (trackConstraints as Record<string, unknown>).focusDistance = focusCaps.min;
-            } else {
-              (trackConstraints as Record<string, unknown>).focusDistance = 0.05; // 5 см
-            }
-          }
-
-          // Увеличиваем резкость для лучшего распознавания
-          if ('sharpness' in capabilities) {
-            const sharpnessCaps = (capabilities as Record<string, unknown>).sharpness as { min?: number; max?: number } | undefined;
-            if (sharpnessCaps?.max !== undefined) {
-              (trackConstraints as Record<string, unknown>).sharpness = sharpnessCaps.max;
-            }
-          }
-
-          // Оптимизируем экспозицию для штрихкодов
-          if ('exposureMode' in capabilities) {
-            (trackConstraints as Record<string, unknown>).exposureMode = 'continuous';
-          }
-
-          // Отключаем zoom для стабильности
-          if ('zoom' in capabilities) {
-            (trackConstraints as Record<string, unknown>).zoom = 1;
-          }
-
-          if (Object.keys(trackConstraints).length > 0) {
+          // Функция для применения настроек макрофокуса
+          const applyMacroFocus = async () => {
             try {
-              await videoTrack.applyConstraints(trackConstraints);
-              console.log('Применены настройки фокуса:', trackConstraints);
+              const trackConstraints: MediaTrackConstraints = {};
+
+              // Пробуем использовать manual focus для точного контроля
+              if ('focusMode' in capabilities) {
+                const focusModes = (capabilities as Record<string, unknown>).focusMode as string[] | undefined;
+
+                // Приоритет: manual > continuous > auto
+                if (focusModes?.includes('manual')) {
+                  (trackConstraints as Record<string, unknown>).focusMode = 'manual';
+                } else if (focusModes?.includes('continuous')) {
+                  (trackConstraints as Record<string, unknown>).focusMode = 'continuous';
+                }
+              }
+
+              // Устанавливаем расстояние фокуса для макросъемки (5-15 см)
+              if ('focusDistance' in capabilities) {
+                const focusCaps = (capabilities as Record<string, unknown>).focusDistance as { min?: number; max?: number } | undefined;
+
+                if (focusCaps?.min !== undefined && focusCaps?.max !== undefined) {
+                  // Оптимальное расстояние 10 см (0.1 метра)
+                  // Нормализуем значение в диапазоне возможностей камеры
+                  const targetDistance = 0.1; // 10 см
+                  const clampedDistance = Math.max(focusCaps.min, Math.min(focusCaps.max, targetDistance));
+                  (trackConstraints as Record<string, unknown>).focusDistance = clampedDistance;
+                  console.log(`Установлено расстояние фокуса: ${clampedDistance}м (диапазон: ${focusCaps.min}-${focusCaps.max})`);
+                }
+              }
+
+              // Максимальная резкость для четкого распознавания штрихкодов
+              if ('sharpness' in capabilities) {
+                const sharpnessCaps = (capabilities as Record<string, unknown>).sharpness as { min?: number; max?: number } | undefined;
+                if (sharpnessCaps?.max !== undefined) {
+                  (trackConstraints as Record<string, unknown>).sharpness = sharpnessCaps.max;
+                }
+              }
+
+              // Непрерывная экспозиция для адаптации к освещению
+              if ('exposureMode' in capabilities) {
+                const exposureModes = (capabilities as Record<string, unknown>).exposureMode as string[] | undefined;
+                if (exposureModes?.includes('continuous')) {
+                  (trackConstraints as Record<string, unknown>).exposureMode = 'continuous';
+                }
+              }
+
+              // Фиксированный zoom без увеличения
+              if ('zoom' in capabilities) {
+                (trackConstraints as Record<string, unknown>).zoom = 1;
+              }
+
+              if (Object.keys(trackConstraints).length > 0) {
+                await videoTrack.applyConstraints(trackConstraints);
+                console.log('✓ Применены настройки макрофокуса:', trackConstraints);
+              }
             } catch (e) {
               console.warn('Не удалось применить настройки фокуса:', e);
             }
-          }
+          };
+
+          // Применяем настройки сразу
+          await applyMacroFocus();
+
+          // Переприменяем настройки каждую секунду для поддержания фокуса
+          // Это помогает камере постоянно фокусироваться на близких объектах
+          focusIntervalRef.current = setInterval(() => {
+            applyMacroFocus();
+          }, 1000);
         }
       }
 
@@ -164,6 +184,12 @@ export default function BarcodeScanner({
   };
 
   const stopScanning = () => {
+    // Останавливаем интервал фокусировки
+    if (focusIntervalRef.current) {
+      clearInterval(focusIntervalRef.current);
+      focusIntervalRef.current = null;
+    }
+
     if (readerRef.current) {
       readerRef.current.reset();
     }

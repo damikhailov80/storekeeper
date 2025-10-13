@@ -58,20 +58,20 @@ export default function BarcodeScanner({
         readerRef.current = new BrowserMultiFormatReader();
       }
 
-      // Настройки для камеры с автофокусом
-      const constraints: MediaStreamConstraints = {
+      // Настройки для камеры с макрофокусом (5-15 см)
+      const constraints = {
         video: {
           facingMode: 'environment', // задняя камера
           width: { ideal: 1920 },
           height: { ideal: 1080 },
-          // @ts-ignore - эти свойства поддерживаются на мобильных устройствах
-          focusMode: 'continuous',
-          // @ts-ignore
-          focusDistance: 0,
-          // @ts-ignore
-          advanced: [{ focusMode: 'continuous' }],
+          advanced: [
+            {
+              focusMode: 'continuous',
+              focusDistance: { ideal: 0.1 }, // 10 см - оптимально для штрихкодов
+            },
+          ],
         },
-      };
+      } as any;
 
       updateScannerState('active');
 
@@ -100,21 +100,48 @@ export default function BarcodeScanner({
         const capabilities = videoTrack.getCapabilities?.();
 
         if (capabilities) {
+          console.log('Возможности камеры:', capabilities);
+
           const trackConstraints: any = {};
 
-          // Включаем автофокус, если поддерживается
+          // Включаем непрерывный автофокус для близких объектов
           if ('focusMode' in capabilities) {
             trackConstraints.focusMode = 'continuous';
           }
 
-          // Устанавливаем расстояние фокуса для макросъемки
+          // Устанавливаем минимальное расстояние фокуса (макро режим)
           if ('focusDistance' in capabilities) {
-            trackConstraints.focusDistance = 0;
+            const focusCaps = capabilities.focusDistance as any;
+            // Используем минимальное значение для максимального приближения
+            if (focusCaps.min !== undefined) {
+              trackConstraints.focusDistance = focusCaps.min;
+            } else {
+              trackConstraints.focusDistance = 0.05; // 5 см
+            }
+          }
+
+          // Увеличиваем резкость для лучшего распознавания
+          if ('sharpness' in capabilities) {
+            const sharpnessCaps = capabilities.sharpness as any;
+            if (sharpnessCaps.max !== undefined) {
+              trackConstraints.sharpness = sharpnessCaps.max;
+            }
+          }
+
+          // Оптимизируем экспозицию для штрихкодов
+          if ('exposureMode' in capabilities) {
+            trackConstraints.exposureMode = 'continuous';
+          }
+
+          // Отключаем zoom для стабильности
+          if ('zoom' in capabilities) {
+            trackConstraints.zoom = 1;
           }
 
           if (Object.keys(trackConstraints).length > 0) {
             try {
               await videoTrack.applyConstraints(trackConstraints);
+              console.log('Применены настройки фокуса:', trackConstraints);
             } catch (e) {
               console.warn('Не удалось применить настройки фокуса:', e);
             }

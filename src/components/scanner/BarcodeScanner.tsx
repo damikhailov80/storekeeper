@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { BarcodeScannerProps, PermissionState, ScannerState } from '@/types/components';
 
 export default function BarcodeScanner({
@@ -12,11 +12,11 @@ export default function BarcodeScanner({
   onPermissionChange,
   onStateChange,
 }: BarcodeScannerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerDivRef = useRef<HTMLDivElement>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scannerState, setScannerState] = useState<ScannerState>('inactive');
-  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
-  const focusIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isScanningRef = useRef(false);
 
   useEffect(() => {
     if (!isActive) {
@@ -50,93 +50,46 @@ export default function BarcodeScanner({
         throw new Error('Ваш браузер не поддерживает доступ к камере');
       }
 
-      const videoElement = videoRef.current;
-      if (!videoElement) return;
+      if (!scannerDivRef.current) return;
 
-      if (!readerRef.current) {
-        readerRef.current = new BrowserMultiFormatReader();
+      if (isScanningRef.current) return;
+
+      if (!scannerRef.current) {
+        scannerRef.current = new Html5Qrcode('barcode-scanner', {
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+          ],
+          verbose: false,
+        });
       }
 
-      const constraints: MediaStreamConstraints = {
-        video: {
-          facingMode: 'environment',
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        disableFlip: false,
       };
 
-      updateScannerState('active');
+      const qrCodeSuccessCallback = (decodedText: string) => {
+        updateScannerState('scanning');
+        onScanSuccess(decodedText);
+      };
 
-      await readerRef.current.decodeFromConstraints(
-        constraints,
-        videoElement,
-        (result, error) => {
-          if (result) {
-            updateScannerState('scanning');
-            const barcode = result.getText();
-            onScanSuccess(barcode);
-            updatePermissionState('granted');
-          }
-
-          if (error && !(error instanceof NotFoundException)) {
-          }
-        }
+      await scannerRef.current.start(
+        { facingMode: 'environment' },
+        config,
+        qrCodeSuccessCallback,
+        undefined
       );
 
-      const stream = videoElement.srcObject as MediaStream;
-      if (stream) {
-        const videoTrack = stream.getVideoTracks()[0];
-        const capabilities = videoTrack.getCapabilities?.();
-
-        if (capabilities) {
-          const applyMacroFocus = async () => {
-            try {
-              const trackConstraints: MediaTrackConstraints = {};
-
-              if ('focusMode' in capabilities) {
-                const focusModes = (capabilities as Record<string, unknown>).focusMode as string[] | undefined;
-
-                if (focusModes?.includes('continuous')) {
-                  (trackConstraints as Record<string, unknown>).focusMode = 'continuous';
-                } else if (focusModes?.includes('auto')) {
-                  (trackConstraints as Record<string, unknown>).focusMode = 'auto';
-                }
-              }
-
-              if ('sharpness' in capabilities) {
-                const sharpnessCaps = (capabilities as Record<string, unknown>).sharpness as { min?: number; max?: number } | undefined;
-                if (sharpnessCaps?.max !== undefined) {
-                  (trackConstraints as Record<string, unknown>).sharpness = sharpnessCaps.max;
-                }
-              }
-
-              if ('exposureMode' in capabilities) {
-                const exposureModes = (capabilities as Record<string, unknown>).exposureMode as string[] | undefined;
-                if (exposureModes?.includes('continuous')) {
-                  (trackConstraints as Record<string, unknown>).exposureMode = 'continuous';
-                }
-              }
-
-              if ('zoom' in capabilities) {
-                (trackConstraints as Record<string, unknown>).zoom = 1;
-              }
-
-              if (Object.keys(trackConstraints).length > 0) {
-                await videoTrack.applyConstraints(trackConstraints);
-              }
-            } catch {
-              // Ignore errors when applying camera constraints
-            }
-          };
-
-          await applyMacroFocus();
-
-          focusIntervalRef.current = setInterval(() => {
-            applyMacroFocus();
-          }, 1000);
-        }
-      }
-
+      isScanningRef.current = true;
+      updateScannerState('active');
       updatePermissionState('granted');
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -150,21 +103,14 @@ export default function BarcodeScanner({
     }
   };
 
-  const stopScanning = () => {
-    if (focusIntervalRef.current) {
-      clearInterval(focusIntervalRef.current);
-      focusIntervalRef.current = null;
-    }
-
-    if (readerRef.current) {
-      readerRef.current.reset();
-    }
-
-    const videoElement = videoRef.current;
-    if (videoElement?.srcObject) {
-      const stream = videoElement.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      videoElement.srcObject = null;
+  const stopScanning = async () => {
+    if (scannerRef.current && isScanningRef.current) {
+      try {
+        await scannerRef.current.stop();
+        isScanningRef.current = false;
+      } catch (error) {
+        // Scanner might already be stopped
+      }
     }
 
     updateScannerState('inactive');
@@ -191,27 +137,26 @@ export default function BarcodeScanner({
     <div className={`relative w-full max-w-md mx-auto ${className}`}>
       {isActive && (
         <>
-          <video
-            ref={videoRef}
-            className="w-full h-auto rounded-lg shadow-lg"
-            playsInline={true}
-            muted={true}
+          <div
+            id="barcode-scanner"
+            ref={scannerDivRef}
+            className="w-full rounded-lg shadow-lg overflow-hidden"
           />
 
           {scannerState === 'active' && !cameraError && (
-            <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+            <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm z-10">
               Сканирование активно
             </div>
           )}
 
           {scannerState === 'scanning' && (
-            <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm animate-pulse">
+            <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm animate-pulse z-10">
               Обработка штрихкода...
             </div>
           )}
 
           {scannerState === 'initializing' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 rounded-lg">
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 rounded-lg z-10">
               <div className="text-center p-4">
                 <p className="text-white">Инициализация камеры...</p>
               </div>
@@ -219,7 +164,7 @@ export default function BarcodeScanner({
           )}
 
           {cameraError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 rounded-lg">
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 rounded-lg z-10">
               <div className="text-center p-4">
                 <p className="text-red-400 mb-2">⚠️ Ошибка камеры</p>
                 <p className="text-white text-sm">{cameraError}</p>

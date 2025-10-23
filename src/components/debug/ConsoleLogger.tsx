@@ -17,7 +17,7 @@ export default function ConsoleLogger() {
   useEffect(() => {
     let logId = 0;
 
-    const addLog = (type: LogEntry['type'], args: any[]) => {
+    const addLog = (type: LogEntry['type'], args: unknown[]) => {
       const message = args
         .map((arg) =>
           typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
@@ -44,22 +44,22 @@ export default function ConsoleLogger() {
     const originalInfo = console.info;
 
     // Перехватываем console методы
-    console.log = (...args: any[]) => {
+    console.log = (...args: unknown[]) => {
       originalLog(...args);
       addLog('log', args);
     };
 
-    console.warn = (...args: any[]) => {
+    console.warn = (...args: unknown[]) => {
       originalWarn(...args);
       addLog('warn', args);
     };
 
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       originalError(...args);
       addLog('error', args);
     };
 
-    console.info = (...args: any[]) => {
+    console.info = (...args: unknown[]) => {
       originalInfo(...args);
       addLog('info', args);
     };

@@ -30,7 +30,7 @@ async function healthCheckHandler() {
         { status: 503 }
       );
     }
-  } catch (error: unknown) {
+  } catch {
     const healthStatus = {
       status: 'error',
       database: 'disconnected',

@@ -29,6 +29,7 @@ export default function BarcodeScanner({
     return () => {
       stopScanning();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
   const updateScannerState = (state: ScannerState) => {
@@ -123,7 +124,8 @@ export default function BarcodeScanner({
               if (Object.keys(trackConstraints).length > 0) {
                 await videoTrack.applyConstraints(trackConstraints);
               }
-            } catch (e) {
+            } catch {
+              // Ignore errors when applying camera constraints
             }
           };
 

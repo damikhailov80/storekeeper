@@ -28,7 +28,7 @@ export class ProductService {
         created_at: product.created_at?.toISOString() ?? new Date().toISOString(),
         updated_at: product.updated_at?.toISOString() ?? new Date().toISOString(),
       };
-    } catch (error) {
+    } catch {
       throw new Error('Ошибка базы данных при поиске товара');
     }
   }
@@ -37,7 +37,7 @@ export class ProductService {
     try {
       await prisma.$queryRaw`SELECT 1`;
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

@@ -36,9 +36,9 @@ async function getProductHandler(
     }
 
     return createSuccessResponse(product);
-  } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'string' && error.code.startsWith('P')) {
-      return handleDatabaseError(error as { code: string });
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'code' in err && typeof err.code === 'string' && err.code.startsWith('P')) {
+      return handleDatabaseError(err as { code: string });
     }
 
     return createErrorResponse(

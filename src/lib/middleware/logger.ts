@@ -23,7 +23,10 @@ export class RequestLogger {
   }
 
   static logResponse(requestLog: RequestLog, status: number, startTime: number): void {
+    // Log response (can be extended with actual logging implementation)
     const duration = Date.now() - startTime;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _log = { ...requestLog, status, duration };
   }
 
   private static getClientIP(request: NextRequest): string {

@@ -2,9 +2,6 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { ApiResponse } from '@/types/api';
 
-/**
- * Создать успешный API ответ
- */
 export function createSuccessResponse<T>(
   data: T,
   status: number = 200
@@ -19,9 +16,6 @@ export function createSuccessResponse<T>(
   );
 }
 
-/**
- * Создать ответ с ошибкой
- */
 export function createErrorResponse(
   code: string,
   message: string,
@@ -44,9 +38,6 @@ export function createErrorResponse(
   );
 }
 
-/**
- * Обработать ошибки валидации Zod
- */
 export function handleValidationError(error: ZodError): NextResponse<ApiResponse<null>> {
   const validationErrors = error.issues.map((issue) => ({
     field: issue.path.join('.'),
@@ -61,13 +52,7 @@ export function handleValidationError(error: ZodError): NextResponse<ApiResponse
   );
 }
 
-/**
- * Обработать ошибки базы данных
- */
 export function handleDatabaseError(error: { code?: string }): NextResponse<ApiResponse<null>> {
-  console.error('Database error:', error);
-
-  // Prisma ошибки
   if (error.code === 'P2002') {
     return createErrorResponse(
       'DUPLICATE_ERROR',

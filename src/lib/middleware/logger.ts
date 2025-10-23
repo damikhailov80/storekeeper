@@ -9,13 +9,7 @@ export interface RequestLog {
   duration?: number;
 }
 
-/**
- * Middleware для логирования HTTP запросов
- */
 export class RequestLogger {
-  /**
-   * Логирует входящий запрос
-   */
   static logRequest(request: NextRequest): RequestLog {
     const log: RequestLog = {
       method: request.method,
@@ -25,25 +19,14 @@ export class RequestLogger {
       ip: this.getClientIP(request),
     };
 
-    console.log(`[${log.timestamp}] ${log.method} ${log.url} - IP: ${log.ip}`);
     return log;
   }
 
-  /**
-   * Логирует ответ с временем выполнения
-   */
   static logResponse(requestLog: RequestLog, status: number, startTime: number): void {
     const duration = Date.now() - startTime;
-    console.log(
-      `[${new Date().toISOString()}] ${requestLog.method} ${requestLog.url} - ${status} - ${duration}ms`
-    );
   }
 
-  /**
-   * Получает IP адрес клиента
-   */
   private static getClientIP(request: NextRequest): string {
-    // Проверяем различные заголовки для получения реального IP
     const forwarded = request.headers.get('x-forwarded-for');
     const realIP = request.headers.get('x-real-ip');
     const cfConnectingIP = request.headers.get('cf-connecting-ip');
@@ -58,13 +41,9 @@ export class RequestLogger {
       return cfConnectingIP;
     }
 
-    // Fallback для локальной разработки
     return 'unknown';
   }
 
-  /**
-   * Создает обертку для API route с логированием
-   */
   static withLogging<T extends unknown[]>(
     handler: (request: NextRequest, ...args: T) => Promise<Response>
   ) {
@@ -78,7 +57,6 @@ export class RequestLogger {
         return response;
       } catch (error) {
         this.logResponse(requestLog, 500, startTime);
-        console.error(`[${new Date().toISOString()}] Error in ${requestLog.method} ${requestLog.url}:`, error);
         throw error;
       }
     };

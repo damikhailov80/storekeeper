@@ -3,13 +3,8 @@ import { ProductService } from '@/lib/services/product.service';
 import { createSuccessResponse } from '@/lib/utils/api-response';
 import { RequestLogger } from '@/lib/middleware/logger';
 
-/**
- * GET /api/health
- * Проверка состояния системы и подключения к базе данных
- */
 async function healthCheckHandler() {
   try {
-    // Проверка подключения к базе данных
     const isDatabaseConnected = await ProductService.healthCheck();
 
     const healthStatus = {
@@ -36,8 +31,6 @@ async function healthCheckHandler() {
       );
     }
   } catch (error: unknown) {
-    console.error('Ошибка в health check:', error);
-    
     const healthStatus = {
       status: 'error',
       database: 'disconnected',
@@ -60,5 +53,4 @@ async function healthCheckHandler() {
   }
 }
 
-// Экспортируем обернутый в логирование handler
 export const GET = RequestLogger.withLogging(healthCheckHandler);

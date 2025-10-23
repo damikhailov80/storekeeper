@@ -86,9 +86,8 @@ export default function ConsoleLogger() {
 
   return (
     <div
-      className={`fixed bottom-0 right-0 bg-black/95 text-white font-mono text-xs z-50 shadow-2xl border-t-2 border-gray-700 ${
-        isMinimized ? 'h-12' : 'h-96'
-      } w-full md:w-2/3 lg:w-1/2 transition-all duration-300`}
+      className={`fixed bottom-0 right-0 bg-black/95 text-white font-mono text-xs z-50 shadow-2xl border-t-2 border-gray-700 ${isMinimized ? 'h-12' : 'h-96'
+        } w-full md:w-2/3 lg:w-1/2 transition-all duration-300`}
     >
       {/* Заголовок */}
       <div className="flex items-center justify-between bg-gray-800 px-4 py-2 border-b border-gray-700">
@@ -133,30 +132,28 @@ export default function ConsoleLogger() {
             logs.map((log) => (
               <div
                 key={log.id}
-                className={`p-2 rounded border-l-4 ${
-                  log.type === 'error'
+                className={`p-2 rounded border-l-4 ${log.type === 'error'
                     ? 'bg-red-900/20 border-red-500'
                     : log.type === 'warn'
                       ? 'bg-yellow-900/20 border-yellow-500'
                       : log.type === 'info'
                         ? 'bg-blue-900/20 border-blue-500'
                         : 'bg-gray-800/50 border-gray-600'
-                }`}
+                  }`}
               >
                 <div className="flex items-start gap-2">
                   <span className="text-gray-400 text-[10px] whitespace-nowrap">
                     {log.timestamp}
                   </span>
                   <span
-                    className={`text-[10px] font-semibold uppercase ${
-                      log.type === 'error'
+                    className={`text-[10px] font-semibold uppercase ${log.type === 'error'
                         ? 'text-red-400'
                         : log.type === 'warn'
                           ? 'text-yellow-400'
                           : log.type === 'info'
                             ? 'text-blue-400'
                             : 'text-green-400'
-                    }`}
+                      }`}
                   >
                     {log.type}
                   </span>
